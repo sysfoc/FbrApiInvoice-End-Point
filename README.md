@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FBR Digital Invoice API (Pakistan)
 
-## Getting Started
+**Live API URL:**  
+https://fbrbpiinvoice.vercel.app/api/fbr/send-invoice
 
-First, run the development server:
+A super-fast, production-ready **FBR (Federal Board of Revenue) Digital Invoicing API** built with **Next.js 15 + TypeScript** using the official FBR Sandbox & Production environment.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This API accepts full invoice data from **Postman, frontend apps, or any system** and returns **real-time FBR invoice number** with `statusCode: "00"` (Valid).
+
+---
+
+### Features
+- Full dynamic payload from request (you control everything else)
+- Clean FBR response — **no wrapper, no extra fields**
+- Supports both **Sandbox** and **Production** via `.env`
+- Auto-retry & timeout handling
+- Deployed in 60 seconds on Vercel (free forever)
+
+---
+
+### Live Endpoint (Working Right Now)
+
+```http
+POST https://fbrbpiinvoice.vercel.app/api/fbr/send-invoice
+Content-Type: application/json
 ```
+Example Request (Postman)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+{
+  "invoiceType": "Sale Invoice",
+  "invoiceDate": "2025-12-09",
+  "sellerBusinessName": "Solutions",
+  "sellerProvince": "Earth",
+  "sellerNTNCNIC": "1111111",
+  "sellerAddress": "Earth",
+  "Reason": "Return",
+  "buyerNTNCNIC": "1111111",
+  "buyerBusinessName": "xyz",
+  "buyerProvince": "Earth",
+  "buyerAddress": "Earth",
+  "invoiceRefNo": "",
+  "scenarioId": "SN002",
+  "buyerRegistrationType": "Unregistered",
+  "items": [
+    {
+      "hsCode": "8432.3100",
+      "productDescription": "Seed-cum-fertilizer",
+      "rate": "18%",
+      "uoM": "Numbers, pieces, units",
+      "quantity": 1,
+      "totalValues": 2950,
+      "valueSalesExcludingST": 2500,
+      "fixedNotifiedValueOrRetailPrice": 2500,
+      "salesTaxApplicable": 450,
+      "salesTaxWithheldAtSource": 0,
+      "extraTax": 0,
+      "furtherTax": 0,
+      "fedPayable": 0,
+      "discount": 0,
+      "saleType": "Goods at standard rate (default)",
+      "sroItemSerialNo": "",
+      "sroScheduleNo": ""
+    }
+  ]
+}
