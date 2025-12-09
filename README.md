@@ -14,7 +14,6 @@ This API accepts full invoice data from **Postman, frontend apps, or any system*
 - Clean FBR response — **no wrapper, no extra fields**
 - Supports both **Sandbox** and **Production** via `.env`
 - Auto-retry & timeout handling
-- Deployed in 60 seconds on Vercel (free forever)
 
 ---
 
