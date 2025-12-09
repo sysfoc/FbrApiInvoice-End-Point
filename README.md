@@ -3,7 +3,7 @@
 **Live API URL:**  
 https://fbr-api-invoice-end-point.vercel.app/api/send-invoice
 
-A super-fast, production-ready **FBR (Federal Board of Revenue) Digital Invoicing API** built with **Next.js 15 + TypeScript** using the official FBR Sandbox & Production environment.
+A super-fast, production-ready **FBR (Federal Board of Revenue) Digital Invoicing API** built with **Next.js 16 + TypeScript** using the official FBR Sandbox & Production environment.
 
 This API accepts full invoice data from **Postman, frontend apps, or any system** and returns **real-time FBR invoice number** with `statusCode: "00"` (Valid).
 
