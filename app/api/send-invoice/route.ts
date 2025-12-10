@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const FBR_MODE = process.env.FBR_MODE || 'sandbox';
 
@@ -12,43 +12,66 @@ const FBR_TOKEN = FBR_MODE === 'production'
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
-        const payload = {
-            ...body,
-        };
 
+        const body = await request.json();
+
+        //Send request to FBR API
         const res = await fetch(FBR_URL, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${FBR_TOKEN}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(body)
         });
+
+        // FBR  response convert in JSON
         const data = await res.json();
 
-        return new Response(JSON.stringify(data, null, 2), {
-            status: res.status,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        // Status code (00 = Success)
+        const statusCode = data?.validationResponse?.statusCode;
+
+        // Invoice success 
+        if (statusCode === '00') {
+            return NextResponse.json({
+                success: true,
+                message: 'Invoice submitted successfully',
+                mode: FBR_MODE,
+                ...data
+            }, { status: 200 });
+        }
+
+        // if invoice rejected from FBR
+        return NextResponse.json({
+            success: false,
+            message: 'Invoice validation failed',
+            mode: FBR_MODE,
+            ...data
+        }, { status: 422 });
 
     } catch (error: any) {
-        const errorResponse = {
+        //  For error
+        return NextResponse.json({
+            success: false,
+            error: error.message,
+            mode: FBR_MODE,
             dated: new Date().toISOString().replace('T', ' ').substring(0, 19),
             validationResponse: {
                 statusCode: "01",
                 status: "Invalid",
-                errorCode: "502",
-                error: "Failed to connect to FBR server. Please try again.",
+                error: "Failed to connect to FBR server",
                 invoiceStatuses: null
             }
-        };
-
-        return new Response(JSON.stringify(errorResponse, null, 2), {
-            status: 502,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        }, { status: 502 });
     }
+}
+
+export async function GET() {
+    // Health check endpoint
+    return NextResponse.json({
+        service: 'FBR Invoice API',
+        mode: FBR_MODE,
+        status: 'ready',
+        endpoint: FBR_URL
+    });
 }
