@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { scenarioTemplates } from '../../../lib/scenarios';
 import { Copy, CheckCircle, ArrowLeft, User, FileText, X } from 'lucide-react';
-export const runtime = 'edge';
+
 export default function ScenarioPage() {
     const { id } = useParams();
     const router = useRouter();

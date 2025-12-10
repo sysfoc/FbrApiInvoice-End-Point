@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-export const runtime = 'edge';
+
 const FBR_MODE = process.env.FBR_MODE || 'sandbox';
 
 const FBR_URL = FBR_MODE === 'production'
