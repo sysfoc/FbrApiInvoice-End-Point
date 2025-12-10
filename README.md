@@ -1,64 +1,64 @@
-# FBR Digital Invoice API (Pakistan)
+# FBR Invoice Testing Portal + Live API (Pakistan)
 
-**Live API URL:**  
+**Live Demo & API:**  
 https://fbr-api-invoice-end-point.vercel.app/api/send-invoice
 
-A super-fast, production-ready **FBR (Federal Board of Revenue) Digital Invoicing API** built with **Next.js 16 + TypeScript** using the official FBR Sandbox & Production environment.
+A **beautiful, production-ready** web app + backend API to test and submit all **28 FBR Digital Invoice Scenarios** instantly — fully working with real FBR Sandbox.
 
-This API accepts full invoice data from **Postman, frontend apps, or any system** and returns **real-time FBR invoice number** with `statusCode: "00"` (Valid).
+No setup. No credentials. Just open and test.
 
 ---
 
 ### Features
-- Full dynamic payload from request (you control everything else)
-- Clean FBR response — **no wrapper, no extra fields**
-- Supports both **Sandbox** and **Production** via `.env`
-- Auto-retry & timeout handling
+
+- **28 pre-configured FBR scenarios** (SN001 to SN028) – all officially tested
+- One-click **Send Invoice** → gets real `statusCode: "00"` from FBR
+- Live payload generator with editable buyer details
+- Seller info saved in browser (persists forever)
+- Modern, responsive UI with dark mode-ready design
+- Real-time success/error feedback using SweetAlert2
+- **Live API backend** included – use it in your own apps!
 
 ---
 
-### Live Endpoint (Working Right Now)
+### Live Tools
+
+| Tool                          | URL                                                                 |
+|------------------------------|----------------------------------------------------------------------|
+| Testing Portal (Frontend)     | https://fbr-api-invoice-end-point.vercel.app                                |
+| Send Invoice API (Backend)    | `POST` https://fbr-api-invoice-end-point.vercel.app/api/send-invoice   |
+
+---
+
+### API Usage (Use in Postman, Apps, ERP, etc.)
 
 ```http
 POST https://fbr-api-invoice-end-point.vercel.app/api/send-invoice
 Content-Type: application/json
-```
-Example Request (Postman)
 
 {
   "invoiceType": "Sale Invoice",
-  "invoiceDate": "2025-12-09",
-  "sellerBusinessName": "Solutions",
-  "sellerProvince": "Earth",
-  "sellerNTNCNIC": "1111111",
-  "sellerAddress": "Earth",
-  "Reason": "Return",
-  "buyerNTNCNIC": "1111111",
-  "buyerBusinessName": "xyz",
-  "buyerProvince": "Earth",
-  "buyerAddress": "Earth",
-  "invoiceRefNo": "",
-  "scenarioId": "SN002",
+  "invoiceDate": "2025-12-10",
+  "sellerNTNCNIC": "8885801-7",
+  "sellerBusinessName": "Test Company Pvt Ltd",
+  "sellerProvince": "Sindh",
+  "sellerAddress": "Karachi",
+  "buyerNTNCNIC": "1234567-8",
+  "buyerBusinessName": "Customer ABC",
+  "buyerProvince": "Punjab",
+  "buyerAddress": "Lahore",
+  "invoiceRefNo": "TEST-001",
   "buyerRegistrationType": "Unregistered",
   "items": [
     {
-      "hsCode": "8432.3100",
-      "productDescription": "Seed-cum-fertilizer",
+      "hsCode": "6109.1000",
+      "productDescription": "T-Shirts",
+      "quantity": 50,
+      "valueSalesExcludingST": 50000,
       "rate": "18%",
+      "salesTaxApplicable": 9000,
       "uoM": "Numbers, pieces, units",
-      "quantity": 1,
-      "totalValues": 2950,
-      "valueSalesExcludingST": 2500,
-      "fixedNotifiedValueOrRetailPrice": 2500,
-      "salesTaxApplicable": 450,
-      "salesTaxWithheldAtSource": 0,
-      "extraTax": 0,
-      "furtherTax": 0,
-      "fedPayable": 0,
-      "discount": 0,
-      "saleType": "Goods at standard rate (default)",
-      "sroItemSerialNo": "",
-      "sroScheduleNo": ""
+      "saleType": "Goods at standard rate (default)"
     }
   ]
 }
