@@ -1,12 +1,12 @@
 // ============================================
-// FILE 1: app/page.tsx
+// FILE: app/page.tsx
 // ============================================
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Swal from "sweetalert2";
 import { scenarioTemplates } from '../lib/scenarios';
-import { Send, FileText, Check, X } from 'lucide-react';
+import { Send, FileText, Check, X, Key } from 'lucide-react';
 
 const scenarios = [
   { id: "SN001", name: "Sale of Standard Rate Goods to Registered Buyers" },
@@ -39,24 +39,41 @@ const scenarios = [
   { id: "SN028", name: "Sale of Goods at Reduced Rate to End Consumers by Retailers" },
 ];
 
+// Default seller information
+const DEFAULT_SELLER = {
+  sellerNTNCNIC: "4641094",
+  sellerBusinessName: "ABC Trading Company",
+  sellerProvince: "Punjab",
+  sellerAddress: "123 Main Street, Lahore",
+  customToken: "", // Empty by default - will use env token
+};
+
 export default function Home() {
-  const [seller, setSeller] = useState({
-    sellerNTNCNIC: "",
-    sellerBusinessName: "",
-    sellerProvince: "",
-    sellerAddress: "",
-  });
+  const [seller, setSeller] = useState(DEFAULT_SELLER);
+  const [useDefaultSeller, setUseDefaultSeller] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("sellerData");
-    if (saved) setSeller(JSON.parse(saved));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setUseDefaultSeller(parsed.useDefaultSeller ?? true);
+      setSeller({ ...DEFAULT_SELLER, ...parsed });
+    }
   }, []);
 
-  const updateSeller = (key: string, value: string) => {
-    const newSeller = { ...seller, [key]: value };
-    setSeller(newSeller);
-    localStorage.setItem("sellerData", JSON.stringify(newSeller));
+    const saveSeller = (data: any, useDefault = false) => {
+    localStorage.setItem(
+      'sellerData',
+      JSON.stringify({ ...data, useDefaultSeller: useDefault })
+    );
+  };
+
+   const updateSeller = (key: string, value: string) => {
+    if (useDefaultSeller) setUseDefaultSeller(false);
+    const updated = { ...seller, [key]: value };
+    setSeller(updated);
+    saveSeller(updated, false);
   };
 
   const sendInvoice = async (id: string) => {
@@ -94,6 +111,7 @@ export default function Home() {
       sellerProvince: seller.sellerProvince,
       sellerAddress: seller.sellerAddress,
       items: template.items,
+      customToken: seller.customToken || undefined, // Only send if provided
     };
     setLoading(id);
     try {
@@ -120,6 +138,7 @@ export default function Home() {
             </div>
             ${data?.invoiceNumber ? `<p style="margin:8px 0; color:#1e293b;"><strong>Invoice Number:</strong> <code style="background:#e2e8f0; padding:4px 8px; border-radius:6px; font-size:13px;">${data.invoiceNumber}</code></p>` : ''}
             ${data?.dated ? `<p style="margin:8px 0; color:#64748b;"><strong>Date:</strong> ${data.dated}</p>` : ''}
+            ${data?.tokenUsed ? `<p style="margin:8px 0; color:#64748b;"><strong>Token Used:</strong> ${data.tokenUsed}</p>` : ''}
             ${!isSuccess ? `<p style="margin:12px 0; padding:12px; background:#fee2e2; border-left:4px solid #ef4444; border-radius:8px; color:#991b1b;"><strong>Error:</strong> ${data?.validationResponse?.error || "Unknown error"}</p>` : ''}
           </div>
           <details style="margin-top:20px; cursor:pointer;">
@@ -172,20 +191,52 @@ export default function Home() {
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            {Object.entries(seller).map(([key, value]) => (
-              <div key={key}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
-                </label>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => updateSeller(key, e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition text-gray-900 shadow-sm"
-                  placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-                />
+            {Object.entries(seller)
+              .filter(([key]) => key !== 'customToken')
+              .map(([key, value]) => (
+                <div key={key}>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
+                  </label>
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => updateSeller(key, e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition text-gray-900 shadow-sm"
+                    placeholder={`Enter ${key.replace(/([A-Z])/g, " $1").toLowerCase()}`}
+                  />
+                </div>
+              ))}
+          </div>
+
+          {/* Custom Token Field - Full Width */}
+          <div className="mt-6 p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                <Key className="w-5 h-5 text-amber-600" />
               </div>
-            ))}
+              <div className="flex-1">
+                <label className="block text-sm font-semibold text-gray-900 mb-1">
+                  Custom FBR Token (Optional)
+                </label>
+                <p className="text-xs text-gray-600 mb-3">
+                  Leave empty to use the default environment token. Add your own token here if you want to test with a custom FBR API token.
+                </p>
+                <input
+                  type="password"
+                  value={seller.customToken}
+                  onChange={(e) => updateSeller('customToken', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-500 transition text-gray-900 shadow-sm font-mono text-sm"
+                  placeholder="Enter your custom FBR token (optional)"
+                />
+                {seller.customToken && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-green-700">
+                    <Check className="w-4 h-4" />
+                    <span>Custom token will be used for all invoices</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
         {/* Scenarios Grid */}

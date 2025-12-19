@@ -1,5 +1,5 @@
 // ============================================
-// FILE 2: app/scenario/[id]/page.tsx
+// FILE: app/scenario/[id]/page.tsx
 // ============================================
 'use client';
 import { useState, useEffect } from 'react';
@@ -7,16 +7,20 @@ import { useParams, useRouter } from 'next/navigation';
 import { scenarioTemplates } from '../../../lib/scenarios';
 import { Copy, CheckCircle, ArrowLeft, User, FileText, X } from 'lucide-react';
 
+// Default seller information
+const DEFAULT_SELLER = {
+    sellerNTNCNIC: "4641094",
+    sellerBusinessName: "ABC Trading Company",
+    sellerProvince: "Punjab",
+    sellerAddress: "123 Main Street, Lahore",
+    customToken: ""
+};
+
 export default function ScenarioPage() {
     const { id } = useParams();
     const router = useRouter();
     const template = scenarioTemplates[id as string] || {};
-    const [seller, setSeller] = useState({
-        sellerNTNCNIC: "",
-        sellerBusinessName: "",
-        sellerProvince: "",
-        sellerAddress: ""
-    });
+    const [seller, setSeller] = useState(DEFAULT_SELLER);
     const [buyer, setBuyer] = useState({
         buyerNTNCNIC: "",
         buyerBusinessName: "",
@@ -27,7 +31,9 @@ export default function ScenarioPage() {
 
     useEffect(() => {
         const saved = localStorage.getItem("sellerData");
-        if (saved) setSeller(JSON.parse(saved));
+        if (saved) {
+            setSeller({ ...DEFAULT_SELLER, ...JSON.parse(saved) });
+        }
     }, []);
 
     useEffect(() => {
@@ -53,7 +59,8 @@ export default function ScenarioPage() {
         sellerBusinessName: seller.sellerBusinessName,
         sellerProvince: seller.sellerProvince,
         sellerAddress: seller.sellerAddress,
-        items: template.items
+        items: template.items,
+        ...(seller.customToken && { customToken: seller.customToken })
     };
 
     const copyToClipboard = () => {

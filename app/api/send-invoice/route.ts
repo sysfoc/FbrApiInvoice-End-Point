@@ -1,3 +1,6 @@
+// ============================================
+// FILE: app/api/send-invoice/route.ts
+// ============================================
 import { NextRequest, NextResponse } from 'next/server';
 
 const FBR_MODE = process.env.FBR_MODE || 'sandbox';
@@ -12,20 +15,24 @@ const FBR_TOKEN = FBR_MODE === 'production'
 
 export async function POST(request: NextRequest) {
     try {
-
         const body = await request.json();
+        
+        // Extract custom token if provided, otherwise use env token
+        const { customToken, ...invoiceData } = body;
+        const tokenToUse = customToken || FBR_TOKEN;
+        const tokenSource = customToken ? 'Custom Token' : 'Environment Token';
 
-        //Send request to FBR API
+        // Send request to FBR API
         const res = await fetch(FBR_URL, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${FBR_TOKEN}`,
+                'Authorization': `Bearer ${tokenToUse}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(invoiceData)
         });
 
-        // FBR  response convert in JSON
+        // FBR response convert in JSON
         const data = await res.json();
 
         // Status code (00 = Success)
@@ -37,6 +44,7 @@ export async function POST(request: NextRequest) {
                 success: true,
                 message: 'Invoice submitted successfully',
                 mode: FBR_MODE,
+                tokenUsed: tokenSource,
                 ...data
             }, { status: 200 });
         }
@@ -46,11 +54,12 @@ export async function POST(request: NextRequest) {
             success: false,
             message: 'Invoice validation failed',
             mode: FBR_MODE,
+            tokenUsed: tokenSource,
             ...data
         }, { status: 422 });
 
     } catch (error: any) {
-        //  For error
+        // For error
         return NextResponse.json({
             success: false,
             error: error.message,
